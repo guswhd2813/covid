@@ -401,7 +401,7 @@
     <build>
     	<defaultGoal>install</defaultGoal>
 		<directory>${basedir}/target</directory>
-		<finalName>anniver</finalName>
+		<finalName>coronanote</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-eclipse-plugin</artifactId>
