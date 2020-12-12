@@ -1,0 +1,33 @@
+<%@ page pageEncoding="utf-8"%>
+<div class="navWrap">
+	<ul class="nav">
+		<li>
+			<a href="/friend.do"><i class="fas fa-users"></i></a>
+		</li>
+		<li>
+			<a href="/image.do"><i class="far fa-images"></i></a>
+		</li>
+		<!-- <li>
+			<a href="#"><i class="far fa-comment-alt"></i></a>
+		</li>
+		<li>
+			<a href="#"><i class="far fa-edit"></i></a>
+		</li> -->
+	</ul>
+</div>
+
+<script>
+	var cur_url = window.location.href;
+	console.log(cur_url)
+	if(cur_url.indexOf('friend') != -1){
+		$('.nav li:nth-child(1)').addClass('on');
+	}else if(cur_url.indexOf('image') != -1){
+		$('.nav li:nth-child(2)').addClass('on');
+	}
+	
+</script>
+<style>
+	.navWrap{background-color: #fff;}
+	.navWrap .nav li{width: 50%;}
+	.contentWrap .title{background-color: #fff;}
+</style>

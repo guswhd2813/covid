@@ -1,0 +1,16 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+	<script type="text/javascript" src="/js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.form.min.js"></script>
+	<script type="text/javascript" src="/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="/js/inobounce.js"></script>
+	<script type="text/javascript" src="/js/jquery.minicolors.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.ui.touch-punch.js"></script>
+	<script type="text/javascript" src="/js/sweetalert.min.js"></script>
+	<script type="text/javascript" src="/js/utils.js"></script>
+	<script type="text/javascript" src="/js/anniver.js"></script>
+	<link rel="stylesheet" type="text/css" href="/css/jquery.minicolors.css">
+	<link rel="stylesheet" type="text/css" href="/css/all.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="/css/common.css">

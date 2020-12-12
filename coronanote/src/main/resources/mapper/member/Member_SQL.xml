@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="memberDAO">
+
+	<select id="selectIdChk" parameterType="hashmap" resultType="int">
+		select /*programID = memberDAO.selectIdCnt */
+			count(*)
+		from member_info
+		where 1=1
+		and id = #{id}
+	</select>
+
+	<select id="selectIdCnt" parameterType="hashmap" resultType="int">
+		select /*programID = memberDAO.selectIdCnt */
+			count(*)
+		from member_info
+		where 1=1
+		and id = #{id}
+		and pw = #{pw}
+		and use_yn = 'Y'
+	</select>
+	
+	<select id="selectMemberInfo" parameterType="hashmap" resultType="hashmap">
+		select /*programID = memberDAO.selectMemberInfo */
+			member_seq,
+			name,
+			email
+		from member_info
+		where 1=1
+		and id = #{id}
+		and use_yn = 'Y'
+	</select>
+	
+	<insert id="insertMemberJoin" parameterType="hashmap">
+		insert /*programID = memberDAO.insertMemberJoin */
+		into member_info(
+			id,
+			pw,
+			name,
+			email,
+			use_yn
+		)values(
+			#{id},
+			#{pw},
+			#{name},
+			#{email},
+			'Y'
+		)
+		<selectKey keyProperty="member_seq" resultType="Integer" order="AFTER">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<insert id="insertGroupFirstSetting" parameterType="hashmap">
+		
+	</insert>
+	<select id="selectFriendRequest" parameterType="hashmap" resultType="hashmap">
+		select /*programID = memberDAO.selectFriendRequest */
+			a.request_seq,
+			b.member_seq,
+			b.name
+		from friend_request a, member_info b
+		where 1=1
+		and a.friend_seq = #{member_seq}
+		and a.member_seq = b.member_seq
+		and a.use_yn = 'Y'
+		group by member_seq
+	</select>
+	
+	<select id="selectGroupInfo" parameterType="hashmap" resultType="hashmap">
+		select /*programID = memberDAO.selectGroupInfo */
+			group_seq,
+			group_name		
+		from group_info
+		where 1=1
+       
+		and member_seq = #{member_seq}
+		and use_yn = 'Y'
+		group by group_seq
+	</select>
+	
+	
+	<select id="selectFriendInfo" parameterType="hashmap" resultType="hashmap">
+		select /*programID = memberDAO.selectFriendInfo */
+			a.friend_seq,
+            b.name
+		from friend_info a, member_info b
+		where 1=1
+		and a.member_seq = #{member_seq}
+        and a.friend_seq = b.member_seq
+		and a.use_yn = 'Y'
+		and b.use_yn = 'Y'
+	</select>
+	
+	<insert id="insertFriendInfo" parameterType="hashmap">
+		insert /*programID = memberDAO.insertFriendInfo */
+		into friend_info(
+			member_seq,
+			friend_seq,
+			use_yn,
+			reg_date
+		)values(
+			#{member_seq},
+			#{friend_seq},
+			'Y',
+			now()
+		)
+	</insert>
+	
+	<insert id="insertFriendInfo2" parameterType="hashmap">
+		insert /*programID = memberDAO.insertFriendInfo */
+		into friend_info(
+			member_seq,
+			friend_seq,
+			use_yn,
+			reg_date
+		)values(
+			#{friend_seq},
+			#{member_seq},
+			'W',
+			now()
+		)
+	</insert>
+	
+	<update id="updateFriendRequestInfo" parameterType="hashmap">
+		update /*programID = memberDAO.updateFriendRequestInfo */
+			friend_request 
+		set 
+			use_yn = 'N',
+			mod_date = now()
+		where 1=1
+		and request_seq = #{request_seq}
+		and use_yn = 'Y'
+	</update>
+	
+	<select id="selectGroupMemberInfo" parameterType="hashmap" resultType="hashmap">
+		select /*programID = memberDAO.selectGroupMemberInfo */
+			c.member_seq as friend_seq,
+            c.name
+		from group_info a, group_member_info b, member_info c
+		where 1=1
+		and a.group_seq = #{group_seq}
+		and a.group_seq = b.group_seq
+		and b.member_seq = c.member_seq
+		and a.use_yn = 'Y'
+		and b.use_yn = 'Y'
+		and c.use_yn = 'Y'
+		and c.member_seq in (select friend_seq from friend_info where member_seq = #{member_seq} and use_yn = 'Y')
+		group by friend_seq
+	</select>
+	
+	<insert id="insertFileInfo" parameterType="Map" >
+		insert 		/*programID = memberDAO.insertFileInfo */ 
+		into img_info(
+			img_path,	
+			reg_date, 
+			use_yn
+		)
+		values(
+			 #{img_path},
+			 now(),
+			 'Y'
+		)
+		<selectKey keyProperty="img_seq" resultType="Integer" order="AFTER">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<insert id="insertGroupInfo" parameterType="hashmap">
+		insert /*programID = memberDAO.insertGroupInfo */
+		into group_info(
+			member_seq,
+			group_name,
+			use_yn,
+			reg_date
+		)values(
+			#{member_seq},
+			#{group_name},
+			'Y',
+			now()
+		)
+	</insert>
+	
+	<insert id="insertSendShareInfo" parameterType="hashmap">
+		insert /*programID = memberDAO.insertSendShareInfo */
+		into img_send_info(
+			img_seq,
+			member_seq,
+			friend_seq,
+			reg_date,
+			use_yn
+		)values(
+			#{img_seq},
+			#{member_seq},
+			#{friend_seq},
+			now(),
+			'W'
+		)
+	</insert>
+
+	<insert id="insertFriendRequest" parameterType="hashmap">
+		insert /*programID = memberDAO.insertFriendRequest */
+		into	friend_request(
+			member_seq,
+			friend_seq,
+			reg_date,
+			use_yn			
+		)values(
+			#{member_seq},
+			(	select
+					member_seq
+				from 
+					member_info
+				where 1=1 
+				and id = #{id}
+			),
+			now(),
+			'Y'
+		)
+	</insert>
+	
+	<insert id="insertGroupAdd" parameterType="hashmap">
+		insert	/*programID = memberDAO.insertGroupAdd */ 
+		into	group_member_info(
+				group_seq,
+		        member_seq,
+		        reg_date,
+		        use_yn
+		) values (
+			#{group_seq},
+		    #{friend_seq},
+		    now(),
+		    'Y'
+		)
+	</insert>
+	
+	<select id="selectFileInfo" parameterType="hashmap" resultType="hashmap">
+		select 		/*programID = memberDAO.selectFileInfo */
+		    img_seq, img_path
+		from
+		    img_info
+		where img_seq = #{img_seq}
+	</select>
+	
+	<select id="selectSharedImageInfo" parameterType="hashmap" resultType="hashmap">
+		select 		/*programID = memberDAO.selectSharedImageInfo */
+			a.send_seq,
+			a.img_seq,
+			a.reg_date,
+			a.member_seq,
+			b.name	
+		from
+			img_send_info a, member_info b, friend_info c
+		where 1=1
+		and (a.member_seq = #{member_seq} or a.friend_seq = #{member_seq})
+		and a.member_seq = b.member_seq
+		and a.use_yn = 'Y'
+		and b.use_yn = 'Y'
+		and c.use_yn = 'Y'
+		and b.member_seq = c.member_seq
+		and (a.member_seq in (select friend_seq from friend_info where member_seq = #{member_seq} and use_yn = 'Y')
+        or a.friend_seq in (select friend_seq from friend_info where member_seq = #{member_seq} and use_yn = 'Y'))
+		and (select use_yn from img_info where img_seq = a.img_seq) = 'Y'
+		group by img_seq
+		order by a.reg_date desc
+	</select>
+	
+	<select id="selectMemberCount" parameterType="hashmap" resultType="int">
+		select 		/*programID = memberDAO.selectMemberCount */
+			count(*)
+		from
+			member_info
+		where 1=1
+		and id = #{id}
+		and member_seq != #{member_seq}
+	</select>
+	
+	<select id="selectMemberCount2" parameterType="hashmap" resultType="int">
+		select 		/*programID = memberDAO.selectMemberCount2 */
+			count(*)
+		from
+			friend_info
+		where 1=1
+		and member_seq = #{member_seq}
+		and friend_seq = (
+							select
+								member_seq
+							from 
+								member_info
+							where 1=1 
+							and id = #{id}		
+						)
+		and use_yn = 'Y'		
+	</select>
+	
+	<select id="selectMemberCount3" parameterType="hashmap" resultType="int">
+		select 		/*programID = memberDAO.selectMemberCount3 */
+		count(*)
+		from
+			friend_request
+		where 1=1
+		and member_seq = #{member_seq}
+		and friend_seq = (
+							select
+								member_seq
+							from 
+								member_info
+							where 1=1 
+							and id = #{id}		
+						)
+		and use_yn = 'Y'		
+	</select>
+	
+	<select id="selectMemberCount4" parameterType="hashmap" resultType="int">
+		select 		/*programID = memberDAO.selectMemberCount4 */
+		count(*)
+		from
+			friend_request
+		where 1=1
+		and friend_seq = #{member_seq}
+		and member_seq = (
+							select
+								member_seq
+							from 
+								member_info
+							where 1=1 
+							and id = #{id}		
+						)
+		and use_yn = 'Y'		
+	</select>
+	
+	<select id="selectGroupFriendAdd" parameterType="hashmap" resultType="hashmap">
+		select	/*programID = memberDAO.selectGroupFriendAdd */
+		   a.friend_seq,
+		    b.name
+		from (
+			select friend_seq 
+		    from friend_info 
+		    where member_seq = #{member_seq}
+		    and friend_seq 
+		    not in (
+				select member_seq as friend_seq 
+		        from group_member_info 
+		        where group_seq = #{group_seq}) ) as a, member_info b
+		where b.member_seq = a.friend_seq
+		group by a.friend_seq; 
+	</select>
+		
+	<delete id="deleteGroupMember" parameterType="hashmap">
+		delete	/*programID = memberDAO.deleteGroupMember */
+		from 
+			group_member_info
+		where 1=1
+		and group_seq = #{group_seq}
+		and member_seq = #{member_seq}
+	</delete>
+	
+	<delete id="deleteGroupMemberAll" parameterType="hashmap">
+		delete 	/*programID = memberDAO.deleteGroupMemberAll */
+		from 
+			group_member_info
+		where 1=1
+		and group_seq = #{group_seq}
+	</delete>
+	
+	<delete id="deleteGroupAll" parameterType="hashmap">
+		delete 	/*programID = memberDAO.deleteGroupAll */
+		from 
+			group_info
+		where 1=1
+		and group_seq = #{group_seq}
+	</delete>
+	
+	<update id="updateGroupName" parameterType="hashmap">
+		update /*programID = memberDAO.updateGroupName */
+			group_info 
+		set 
+			group_name = #{group_name},
+			mod_date = now()
+		where 1=1
+		and group_seq = #{group_seq}
+	</update>
+	
+	<select id="selectFriendSearch" parameterType="hashmap" resultType="hashmap">
+		select	/*programID = memberDAO.selectFriendSearch */
+			member_seq,
+			id,
+			name
+		from
+			member_info a
+		where 1=1
+		and	id like '%${id}%'
+		and member_seq != #{member_seq}
+		and member_seq not in (
+			 select
+			 	friend_seq as member_seq
+			 from friend_info
+			 where
+			 member_seq = #{member_seq}
+			 and use_yn = 'Y'
+			) 
+		and member_seq not in (
+			select 
+				friend_seq as member_seq
+			from friend_request
+			where 1=1
+			and member_seq = #{member_seq}
+			and use_yn = 'Y'
+		)
+		and member_seq not in ( 
+			select 
+				member_seq
+			from friend_request
+			where 1=1 
+			and friend_seq = #{member_seq}
+			and use_yn = 'Y'
+		) 
+		
+	</select>
+	
+	<update id="deleteImg_send_info" parameterType="hashmap">
+		update /*programID = memberDAO.deleteImage_send_info */
+			img_send_info 
+		set 
+			use_yn = 'N',
+			mod_date = now()
+		where 1=1
+		and img_seq = #{img_seq}
+		and use_yn = 'Y'
+	</update>
+	
+	<update id="deleteImg_info" parameterType="hashmap">
+		update /*programID = memberDAO.deleteImage_info */
+			img_info
+		set 
+			use_yn = 'N',
+			mod_date = now()
+		where 1=1
+		and img_seq = #{img_seq}
+		and use_yn = 'Y'
+	</update>
+	
+	<select id="selectImgCnt" parameterType="hashmap" resultType="int">
+		select
+		count(*)
+		from
+		img_send_info 
+		where 1=1
+		and use_yn ='W'
+		and friend_seq = #{member_seq}
+	</select>
+	
+	<update id="updateImgRequest" parameterType="hashmap">
+		update /*programID = memberDAO.updateImgRequest */
+			img_send_info 
+		set 
+			
+			mod_date = now(),
+			<if test='type == "Y"'>
+			use_yn = 'Y'
+			</if>
+			<if test='type == "N"'>
+			use_yn = 'N'
+			</if>
+		where 1=1
+		and friend_seq = #{member_seq}
+		and use_yn = 'W'
+	</update>
+	
+	<select id="selectFriendSendRequest" parameterType="hashmap" resultType="hashmap">
+		select /*programID = memberDAO.selectFriendSendRequest */
+			a.request_seq,
+			b.member_seq,
+			b.name
+		from friend_request a, member_info b
+		where 1=1
+		and a.member_seq = #{member_seq}
+		and a.friend_seq = b.member_seq
+		and a.use_yn = 'Y'
+		group by member_seq
+	</select>
+	
+	<update id="friendCancelRequest" parameterType="hashmap">
+		update /*programID = memberDAO.friendCancelRequest */
+			friend_request
+		set 
+			mod_date = now(),
+			use_yn = 'N'
+		where 1=1
+		and request_seq = #{request_seq}
+		and use_yn = 'Y'
+	</update>
+	
+	<select id="friendStateChk" parameterType="hashmap" resultType="string">
+		select /*programID = memberDAO.friendStateChk */
+			use_yn
+		from friend_request
+		where 1=1
+		and request_seq = #{request_seq}
+	</select>
+	
+	<select id="friendAddedSelect" parameterType="hashmap" resultType="int">
+		select /*programID = memberDAO.friendAddedSelect */
+		count(*)
+		from friend_info
+		where 1=1
+		and member_seq = #{member_seq}
+		and use_yn = 'W'
+	</select>
+	
+	<update id="friendAddedRequest" parameterType="hashmap">
+		update /*programID = memberDAO.friendAddedRequest */
+			friend_info
+		set 
+			use_yn = 'Y'
+		where 1=1
+		and member_seq = #{member_seq}
+		and use_yn = 'W'
+	</update>
+	
+	<delete id="deletefriendInfo" parameterType="hashmap">
+		delete /*programID = memberDAO.deletefriendInfo */
+		from	friend_info
+		where 1=1
+		and member_seq = #{member_seq} 
+		and friend_seq = #{friend_seq}
+		and (use_yn = 'Y' or use_yn ='W')
+	</delete>
+	
+	<delete id="deletefriendInfo2" parameterType="hashmap">
+		delete /*programID = memberDAO.deletefriendInfo2 */
+		from	friend_info
+		where 1=1
+		and member_seq = #{friend_seq} 
+		and friend_seq = #{member_seq}
+		and (use_yn = 'Y' or use_yn ='W')
+	</delete>
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
